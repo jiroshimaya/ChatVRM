@@ -1,7 +1,3 @@
-import React from "react";
-import { IconButton } from "./iconButton";
-import { TextButton } from "./textButton";
-import { Message } from "@/features/messages/messages";
 import {
   KoeiroParam,
   PRESET_A,
@@ -9,7 +5,11 @@ import {
   PRESET_C,
   PRESET_D,
 } from "@/features/constants/koeiroParam";
+import { Message } from "@/features/messages/messages";
+import React from "react";
+import { IconButton } from "./iconButton";
 import { Link } from "./link";
+import { TextButton } from "./textButton";
 
 type Props = {
   openAiKey: string;
@@ -76,7 +76,7 @@ export const Settings = ({
               ChatGPT
               APIはブラウザから直接アクセスしています。また、APIキーや会話内容はピクシブのサーバには保存されません。
               <br />
-              ※利用しているモデルはChatGPT API (GPT-3.5)です。
+              ※利用しているモデルは環境変数NEXT_PUBLIC_LLM_MODELで設定できます。デフォルトはGPT-3.5-turboです。
             </div>
           </div>
           <div className="my-40">
