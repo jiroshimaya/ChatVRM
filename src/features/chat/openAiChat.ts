@@ -70,16 +70,16 @@ export async function getChatResponseStream(messages: Message[]) {
       try {
         while (true) {
           const { done, value } = await reader.read();
-          console.log('Stream read:', { done, hasValue: !!value });
           if (done) break;
           const data = decoder.decode(value);
-          console.log('Decoded data:', data);
           const lines = data
             .split("\n")
             .filter((line) => line.trim() !== "");
-          console.log('Filtered lines:', lines);
           for (const line of lines) {
-            controller.enqueue(line);
+            const chars = [...line];
+            for (const char of chars) {
+              controller.enqueue(char);
+            }
           }
         }
       } catch (error) {
