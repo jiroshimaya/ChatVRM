@@ -1,28 +1,16 @@
-import { koeiromapFreeV1 } from "@/features/koeiromap/koeiromap";
-
+import { synthesizeVoice } from "@/features/voicevox/voicevox";
 import type { NextApiRequest, NextApiResponse } from "next";
 
-type Data = {
-  audio: string;
-};
+type Data = ArrayBuffer;
 
 export default async function handler(
   req: NextApiRequest,
   res: NextApiResponse<Data>
 ) {
   const message = req.body.message;
-  const speakerX = req.body.speakerX;
-  const speakerY = req.body.speakerY;
-  const style = req.body.style;
-  const apiKey = req.body.apiKey;
+  const speakerId = req.body.speakerId;
 
-  const voice = await koeiromapFreeV1(
-    message,
-    speakerX,
-    speakerY,
-    style,
-    apiKey
-  );
+  const audio = await synthesizeVoice(message, speakerId);
 
-  res.status(200).json(voice);
+  res.status(200).send(audio);
 }

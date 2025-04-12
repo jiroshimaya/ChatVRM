@@ -1,43 +1,20 @@
-import { reduceTalkStyle } from "@/utils/reduceTalkStyle";
-import { koeiromapV0 } from "../koeiromap/koeiromap";
 import { TalkStyle } from "../messages/messages";
+import { synthesizeVoice as voicevoxSynthesizeVoice } from "../voicevox/voicevox";
+
+export type SynthesizerType = 'voicevox';
 
 export async function synthesizeVoice(
   message: string,
-  speakerX: number,
-  speakerY: number,
   style: TalkStyle
-) {
-  const koeiroRes = await koeiromapV0(message, speakerX, speakerY, style);
-  return { audio: koeiroRes.audio };
+): Promise<{ audio: ArrayBuffer }> {
+  const synthesizerType = process.env.NEXT_PUBLIC_SYNTHESIZER_TYPE as SynthesizerType || 'voicevox';
+
+  switch (synthesizerType) {
+    case 'voicevox':
+      const audio = await voicevoxSynthesizeVoice(message);
+      return { audio };
+    default:
+      throw new Error(`Unsupported synthesizer type: ${synthesizerType}`);
+  }
 }
 
-export async function synthesizeVoiceApi(
-  message: string,
-  speakerX: number,
-  speakerY: number,
-  style: TalkStyle,
-  apiKey: string
-) {
-  // Free向けに感情を制限する
-  const reducedStyle = reduceTalkStyle(style);
-
-  const body = {
-    message: message,
-    speakerX: speakerX,
-    speakerY: speakerY,
-    style: reducedStyle,
-    apiKey: apiKey,
-  };
-
-  const res = await fetch("/api/tts", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify(body),
-  });
-  const data = (await res.json()) as any;
-
-  return { audio: data.audio };
-}

@@ -1,8 +1,7 @@
 import { wait } from "@/utils/wait";
-import { synthesizeVoiceApi } from "./synthesizeVoice";
 import { Viewer } from "../vrmViewer/viewer";
-import { Screenplay } from "./messages";
-import { Talk } from "./messages";
+import { Screenplay, Talk } from "./messages";
+import { synthesizeVoice } from "./synthesizeVoice";
 
 const createSpeakCharacter = () => {
   let lastTime = 0;
@@ -22,7 +21,7 @@ const createSpeakCharacter = () => {
         await wait(1000 - (now - lastTime));
       }
 
-      const buffer = await fetchAudio(screenplay.talk, koeiroApiKey).catch(
+      const buffer = await fetchAudio(screenplay.talk).catch(
         () => null
       );
       lastTime = Date.now();
@@ -48,23 +47,11 @@ const createSpeakCharacter = () => {
 export const speakCharacter = createSpeakCharacter();
 
 export const fetchAudio = async (
-  talk: Talk,
-  apiKey: string
+  talk: Talk
 ): Promise<ArrayBuffer> => {
-  const ttsVoice = await synthesizeVoiceApi(
+  const ttsVoice = await synthesizeVoice(
     talk.message,
-    talk.speakerX,
-    talk.speakerY,
-    talk.style,
-    apiKey
+    talk.style
   );
-  const url = ttsVoice.audio;
-
-  if (url == null) {
-    throw new Error("Something went wrong");
-  }
-
-  const resAudio = await fetch(url);
-  const buffer = await resAudio.arrayBuffer();
-  return buffer;
+  return ttsVoice.audio;
 };
