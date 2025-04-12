@@ -1,7 +1,7 @@
 import { openai } from '@ai-sdk/openai';
 import { streamText } from 'ai';
 
-const model = process.env.NEXT_PUBLIC_LLM_MODEL || 'gpt-4o-mini';
+const model = process.env.LLM_MODEL || 'gpt-4o-mini';
 
 export async function POST(req: Request) {
   try {

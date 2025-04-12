@@ -16,9 +16,9 @@ import { getChatResponse, getChatResponseStream } from "../chatClient";
 describe("Environment variables", () => {
   it("should load environment variables", () => {
     console.log("OPEN_AI_KEY:", process.env.OPENAI_API_KEY);
-    console.log("NEXT_PUBLIC_LLM_MODEL:", process.env.NEXT_PUBLIC_LLM_MODEL);
+    console.log("LLM_MODEL:", process.env.LLM_MODEL);
     expect(process.env.OPENAI_API_KEY).toBeDefined();
-    expect(process.env.NEXT_PUBLIC_LLM_MODEL).toBeDefined();
+    expect(process.env.LLM_MODEL).toBeDefined();
   });
 });
 
