@@ -8,6 +8,9 @@ const nextConfig = {
     root: process.env.BASE_PATH || "",
   },
   optimizeFonts: false,
+  experimental: {
+    appDir: true,
+  },
 };
 
 module.exports = nextConfig;

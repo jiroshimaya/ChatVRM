@@ -1,10 +1,12 @@
+"use client";
+
 import { GitHubLink } from "@/components/githubLink";
 import { Introduction } from "@/components/introduction";
 import { Menu } from "@/components/menu";
 import { MessageInputContainer } from "@/components/messageInputContainer";
 import { Meta } from "@/components/meta";
 import VrmViewer from "@/components/vrmViewer";
-import { getChatResponseStream } from "@/features/chat/openAiChat";
+import { getChatResponseStream } from "@/features/chat/chatClient";
 import { DEFAULT_PARAM, KoeiroParam } from "@/features/constants/koeiroParam";
 import { SYSTEM_PROMPT } from "@/features/constants/systemPromptConstants";
 import {
@@ -77,10 +79,10 @@ export default function Home() {
    */
   const handleSendChat = useCallback(
     async (text: string) => {
-      if (!openAiKey) {
-        setAssistantMessage("APIキーが入力されていません");
-        return;
-      }
+      //if (!openAiKey) {
+      //  setAssistantMessage("APIキーが入力されていません");
+      //  return;
+      //}
 
       const newMessage = text;
 
@@ -216,4 +218,4 @@ export default function Home() {
       <GitHubLink />
     </div>
   );
-}
+} 

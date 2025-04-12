@@ -5,7 +5,7 @@ const { createTailwindConfig } = require("@charcoal-ui/tailwind-config");
  */
 module.exports = {
   darkMode: true,
-  content: ["./src/**/*.tsx", "./src/**/*.html"],
+  content: ["./src/**/*.{js,ts,jsx,tsx}", "./src/**/*.html"],
   presets: [
     createTailwindConfig({
       version: "v3",

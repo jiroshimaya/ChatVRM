@@ -4,25 +4,25 @@ import { Message } from "../../messages/messages";
 // .envファイルを読み込む
 dotenv.config();
 
-// 環境変数が設定された後にopenAiChatをインポート
-import { getChatResponse, getChatResponseStream } from "../openAiChat";
+// 環境変数が設定された後にchatClientをインポート
+import { getChatResponse, getChatResponseStream } from "../chatClient";
 
 /**
- * OpenAI APIの呼び出しをテストするスクリプト
- * 環境変数NEXT_PUBLIC_LLM_MODELで指定されたモデルを使用して、
+ * LLM APIの呼び出しをテストするスクリプト
+ * バックエンドのAPIを使用して、
  * getChatResponse関数の動作をテストします。
  */
 
 describe("Environment variables", () => {
   it("should load environment variables", () => {
-    console.log("NEXT_PUBLIC_OPEN_AI_KEY:", process.env.NEXT_PUBLIC_OPEN_AI_KEY);
-    console.log("NEXT_PUBLIC_LLM_MODEL:", process.env.NEXT_PUBLIC_LLM_MODEL);
-    expect(process.env.NEXT_PUBLIC_OPEN_AI_KEY).toBeDefined();
-    expect(process.env.NEXT_PUBLIC_LLM_MODEL).toBeDefined();
+    console.log("OPEN_AI_KEY:", process.env.OPENAI_API_KEY);
+    console.log("LLM_MODEL:", process.env.LLM_MODEL);
+    expect(process.env.OPENAI_API_KEY).toBeDefined();
+    expect(process.env.LLM_MODEL).toBeDefined();
   });
 });
 
-describe("OpenAI API", () => {
+describe("LLM API", () => {
   it("should return a response", async () => {
     const messages: Message[] = [
       {

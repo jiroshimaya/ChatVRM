@@ -76,7 +76,7 @@ export const Settings = ({
               ChatGPT
               APIはブラウザから直接アクセスしています。また、APIキーや会話内容はピクシブのサーバには保存されません。
               <br />
-              ※利用しているモデルは環境変数NEXT_PUBLIC_LLM_MODELで設定できます。デフォルトはGPT-3.5-turboです。
+              ※利用しているモデルはバックエンドの環境変数LLM_MODELで設定できます。デフォルトはGPT-3.5-turboです。
             </div>
           </div>
           <div className="my-40">
