@@ -1,7 +1,7 @@
 import { Configuration, OpenAIApi } from "openai";
 import { Message } from "../messages/messages";
 
-const DEFAULT_MODEL = "gpt-3.5-turbo";
+const DEFAULT_MODEL = "gpt-4o-mini";
 const MODEL = process.env.NEXT_PUBLIC_LLM_MODEL || DEFAULT_MODEL;
 const API_KEY = process.env.NEXT_PUBLIC_OPEN_AI_KEY;
 
