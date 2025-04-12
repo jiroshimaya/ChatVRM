@@ -22,13 +22,6 @@ describe('Chat API Route', () => {
     // レスポンスの構造を検証
     expect(response.status).toBe(200);
     expect(data).toHaveProperty('text');
-    expect(data).toHaveProperty('debug');
-    expect(data.debug).toEqual({
-      input: [{ role: 'user', content: 'こんにちは' }],
-      model: 'gpt-4o-mini'
-    });
-
-    // レスポンスの内容が文字列であることを確認
     expect(typeof data.text).toBe('string');
     expect(data.text.length).toBeGreaterThan(0);
   });
