@@ -4,7 +4,7 @@ import { Menu } from "@/components/menu";
 import { MessageInputContainer } from "@/components/messageInputContainer";
 import { Meta } from "@/components/meta";
 import VrmViewer from "@/components/vrmViewer";
-import { getChatResponseStream } from "@/features/chat/openAiChat";
+import { getChatResponseStream } from "@/features/chat/chatClient";
 import { DEFAULT_PARAM, KoeiroParam } from "@/features/constants/koeiroParam";
 import { SYSTEM_PROMPT } from "@/features/constants/systemPromptConstants";
 import {
