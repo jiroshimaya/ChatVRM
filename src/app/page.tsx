@@ -1,3 +1,5 @@
+"use client";
+
 import { GitHubLink } from "@/components/githubLink";
 import { Introduction } from "@/components/introduction";
 import { Menu } from "@/components/menu";
@@ -216,4 +218,4 @@ export default function Home() {
       <GitHubLink />
     </div>
   );
-}
+} 
