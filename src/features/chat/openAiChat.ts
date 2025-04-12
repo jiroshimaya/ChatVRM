@@ -1,54 +1,67 @@
-import { Configuration, OpenAIApi } from "openai";
 import { Message } from "../messages/messages";
 
-const DEFAULT_MODEL = "gpt-4o-mini";
-const MODEL = process.env.NEXT_PUBLIC_LLM_MODEL || DEFAULT_MODEL;
-const API_KEY = process.env.NEXT_PUBLIC_OPEN_AI_KEY;
-
-if (!API_KEY) {
-  throw new Error("NEXT_PUBLIC_OPEN_AI_KEYが設定されていません");
-}
-
 export async function getChatResponse(messages: Message[]) {
-  const configuration = new Configuration({
-    apiKey: API_KEY,
-  });
-  // ブラウザからAPIを叩くときに発生するエラーを無くすworkaround
-  // https://github.com/openai/openai-node/issues/6#issuecomment-1492814621
-  delete configuration.baseOptions.headers["User-Agent"];
-
-  const openai = new OpenAIApi(configuration);
-
-  const { data } = await openai.createChatCompletion({
-    model: MODEL,
-    messages: messages,
-  });
-
-  const [aiRes] = data.choices;
-  const message = aiRes.message?.content || "エラーが発生しました";
-
-  return { message: message };
-}
-
-export async function getChatResponseStream(messages: Message[]) {
-  const headers: Record<string, string> = {
-    "Content-Type": "application/json",
-    Authorization: `Bearer ${API_KEY}`,
-  };
-  const res = await fetch("https://api.openai.com/v1/chat/completions", {
-    headers: headers,
+  const response = await fetch("/api/chat", {
     method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
     body: JSON.stringify({
-      model: MODEL,
-      messages: messages,
-      stream: true,
-      max_tokens: 200,
+      messages,
     }),
   });
 
-  const reader = res.body?.getReader();
-  if (res.status !== 200 || !reader) {
-    throw new Error("Something went wrong");
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    console.error('APIリクエストの詳細:', {
+      status: response.status,
+      statusText: response.statusText,
+      headers: Object.fromEntries(response.headers.entries()),
+      error: errorData,
+      request: {
+        messages: messages.map(m => ({ role: m.role, content: m.content.substring(0, 100) + '...' }))
+      }
+    });
+    throw new Error(
+      `APIリクエストに失敗しました (${response.status}): ${errorData.error || response.statusText}`
+    );
+  }
+
+  const data = await response.json();
+  return data.text;
+}
+
+export async function getChatResponseStream(messages: Message[]) {
+  const response = await fetch("/api/chat", {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      messages,
+      stream: true,
+    }),
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    console.error('APIリクエストの詳細:', {
+      status: response.status,
+      statusText: response.statusText,
+      headers: Object.fromEntries(response.headers.entries()),
+      error: errorData,
+      request: {
+        messages: messages.map(m => ({ role: m.role, content: m.content.substring(0, 100) + '...' }))
+      }
+    });
+    throw new Error(
+      `APIリクエストに失敗しました (${response.status}): ${errorData.error || response.statusText}`
+    );
+  }
+
+  const reader = response.body?.getReader();
+  if (!reader) {
+    throw new Error("ストリームの取得に失敗しました");
   }
 
   const stream = new ReadableStream({
@@ -57,17 +70,16 @@ export async function getChatResponseStream(messages: Message[]) {
       try {
         while (true) {
           const { done, value } = await reader.read();
+          console.log('Stream read:', { done, hasValue: !!value });
           if (done) break;
           const data = decoder.decode(value);
-          const chunks = data
-            .split("data:")
-            .filter((val) => !!val && val.trim() !== "[DONE]");
-          for (const chunk of chunks) {
-            const json = JSON.parse(chunk);
-            const messagePiece = json.choices[0].delta.content;
-            if (!!messagePiece) {
-              controller.enqueue(messagePiece);
-            }
+          console.log('Decoded data:', data);
+          const lines = data
+            .split("\n")
+            .filter((line) => line.trim() !== "");
+          console.log('Filtered lines:', lines);
+          for (const line of lines) {
+            controller.enqueue(line);
           }
         }
       } catch (error) {
