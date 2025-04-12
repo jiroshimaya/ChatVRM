@@ -8,9 +8,8 @@ const player = playSound();
 describe("VoiceVox", () => {
   it("音声合成が正常に動作すること", async () => {
     const text = "こんにちは";
-    const speakerId = 1;
 
-    const result = await synthesizeVoice(text, speakerId);
+    const result = await synthesizeVoice(text);
 
     expect(result).toBeInstanceOf(ArrayBuffer);
     expect(result.byteLength).toBeGreaterThan(0);
@@ -19,12 +18,19 @@ describe("VoiceVox", () => {
     const tempFile = path.join(__dirname, "temp.wav");
     fs.writeFileSync(tempFile, new Uint8Array(result));
 
-    // 音声を再生
+    // 音声を再生して完了を待つ
     console.log("音声を再生します...");
-    player.play(tempFile, (err: Error | null) => {
-      if (err) console.error("音声再生エラー:", err);
-      // 再生後に一時ファイルを削除
-      fs.unlinkSync(tempFile);
+    await new Promise<void>((resolve, reject) => {
+      player.play(tempFile, (err: Error | null) => {
+        if (err) {
+          console.error("音声再生エラー:", err);
+          reject(err);
+        } else {
+          // 再生後に一時ファイルを削除
+          fs.unlinkSync(tempFile);
+          resolve();
+        }
+      });
     });
-  });
+  }, 10000); // タイムアウトを10秒に設定
 }); 
