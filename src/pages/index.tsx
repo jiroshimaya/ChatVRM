@@ -103,7 +103,7 @@ export default function Home() {
         ...messageLog,
       ];
 
-      const stream = await getChatResponseStream(messages, openAiKey).catch(
+      const stream = await getChatResponseStream(messages).catch(
         (e) => {
           console.error(e);
           return null;
