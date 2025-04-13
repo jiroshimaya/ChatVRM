@@ -16,8 +16,38 @@ export async function POST(req: Request) {
       messages,
     });
 
-    // ストリーミングレスポンスを返す
-    return result.toTextStreamResponse();
+    const encoder = new TextEncoder();
+
+    const stream = new ReadableStream({
+      async start(controller) {
+        const startTime = performance.now();
+        try {
+          let isFirstChunk = true;
+          for await (const chunk of result.textStream) {
+            if (isFirstChunk) {
+              console.log(`ストリーミング開始までの時間: ${performance.now() - startTime}ms`);
+              isFirstChunk = false;
+            }
+            controller.enqueue(encoder.encode(chunk));
+            // デバッグ用。ストリーミングが早すぎるとクライアント側が正しくストリーミング処理できているかわからないので、
+            //await new Promise(resolve => setTimeout(resolve, 1));
+          }
+          console.log(`ストリーミング完了までの時間: ${performance.now() - startTime}ms`);
+          controller.close();
+        } catch (error) {
+          console.error('ストリーム処理エラー:', error);
+          controller.error(error);
+        }
+      }
+    });
+
+    return new Response(stream, {
+      headers: {
+        'Content-Type': 'text/plain; charset=utf-8',
+        'Cache-Control': 'no-cache',
+        'Connection': 'keep-alive',
+      },
+    });
   } catch (error) {
     console.error('OpenAI API error:', error);
     return new Response(

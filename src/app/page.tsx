@@ -79,20 +79,14 @@ export default function Home() {
    */
   const handleSendChat = useCallback(
     async (text: string) => {
-      //if (!openAiKey) {
-      //  setAssistantMessage("APIキーが入力されていません");
-      //  return;
-      //}
-
-      const newMessage = text;
-
-      if (newMessage == null) return;
+      const sendStartTime = performance.now();
+      let isFirstUtterance = true;
 
       setChatProcessing(true);
       // ユーザーの発言を追加して表示
       const messageLog: Message[] = [
         ...chatLog,
-        { role: "user", content: newMessage },
+        { role: "user", content: text },
       ];
       setChatLog(messageLog);
 
@@ -163,6 +157,11 @@ export default function Home() {
             // 文ごとに音声を生成 & 再生、返答を表示
             const currentAssistantMessage = sentences.join(" ");
             handleSpeakAi(aiTalks[0], () => {
+              if (isFirstUtterance) {
+                const timeToFirstUtterance = performance.now() - sendStartTime;
+                console.log(`送信から最初の発話までの時間: ${timeToFirstUtterance.toFixed(2)}ms`);
+                isFirstUtterance = false;
+              }
               setAssistantMessage(currentAssistantMessage);
             });
           }
