@@ -32,6 +32,7 @@ export async function getChatResponse(messages: Message[]) {
 }
 
 export async function getChatResponseStream(messages: Message[]) {
+  const startTime = performance.now();
   const response = await fetch("/api/chat", {
     method: "POST",
     headers: {
@@ -71,17 +72,12 @@ export async function getChatResponseStream(messages: Message[]) {
         while (true) {
           const { done, value } = await reader.read();
           if (done) break;
-          const data = decoder.decode(value);
-          const lines = data
-            .split("\n")
-            .filter((line) => line.trim() !== "");
-          for (const line of lines) {
-            const chars = [...line];
-            for (const char of chars) {
-              controller.enqueue(char);
-            }
-          }
+          const token = decoder.decode(value);
+          const timestamp = performance.now() - startTime;
+          console.log(`トークン受信 [${timestamp.toFixed(2)}ms]:`, token);
+          controller.enqueue(token);
         }
+        console.log('ストリーミング完了までの時間:', performance.now() - startTime, 'ms');
       } catch (error) {
         controller.error(error);
       } finally {
