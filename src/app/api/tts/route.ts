@@ -1,31 +1,39 @@
-import { OpenAI } from 'openai';
+import Client from "voicevox-client";
 
-const openai = new OpenAI({
-  apiKey: process.env.OPENAI_API_KEY,
-});
-
-export const runtime = 'edge';
+const HOST = process.env.VOICEVOX_HOST || "http://127.0.0.1:50021";
+const SPEAKER_ID = Number(process.env.VOICEVOX_SPEAKER_ID || 11);
+const client = new Client(HOST);
 
 export async function POST(req: Request) {
   try {
-    const { text, voice = 'alloy' } = await req.json();
+    const { text } = await req.json();
 
-    const mp3 = await openai.audio.speech.create({
-      model: 'tts-1',
-      voice,
-      input: text,
-    });
+    console.log('VOICEVOXリクエスト:', { text, speakerId: SPEAKER_ID });
+    const startTime = performance.now();
 
-    return new Response(await mp3.arrayBuffer(), {
+    const audioQuery = await client.createAudioQuery(text, SPEAKER_ID);
+    const audioBuffer = await audioQuery.synthesis(SPEAKER_ID);
+
+    console.log(`音声合成完了までの時間: ${performance.now() - startTime}ms`);
+
+    return new Response(audioBuffer, {
       headers: {
-        'Content-Type': 'audio/mpeg',
+        'Content-Type': 'audio/wav',
       },
     });
   } catch (error) {
-    console.error('OpenAI TTS API error:', error);
+    console.error('VOICEVOX API error:', error);
     return new Response(
-      JSON.stringify({ message: 'OpenAI TTS APIでエラーが発生しました' }),
-      { status: 500 }
+      JSON.stringify({
+        message: 'VOICEVOX APIでエラーが発生しました',
+        error: error instanceof Error ? error.message : '不明なエラー'
+      }),
+      {
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json'
+        }
+      }
     );
   }
 } 
